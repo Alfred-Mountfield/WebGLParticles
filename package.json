@@ -2,10 +2,10 @@
   "name": "webglparticles",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "webpack serve"
+    "start:dev": "webpack serve --entry ./src/index.ts --mode development"
   },
   "repository": {
     "type": "git",
@@ -19,12 +19,15 @@
   "homepage": "https://github.com/Alfred-Mountfield/WebGLParticles#readme",
   "dependencies": {
     "eslint": "^7.11.0",
-    "three": "^0.121.1"
+    "three": "^0.121.1",
+    "typescript": "^4.0.5",
+    "webpack-dev-server": "^3.11.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
+    "ts-loader": "^8.0.7",
     "webpack": "^5.1.3",
     "webpack-cli": "^4.1.0"
   }
