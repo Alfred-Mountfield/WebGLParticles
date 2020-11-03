@@ -1,17 +1,10 @@
-import {
-    BoxGeometry,
-    Fog,
-    Mesh,
-    MeshBasicMaterial,
-    PerspectiveCamera,
-    Scene,
-    TOUCH,
-    Vector3,
-    WebGLRenderer
-} from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {BoxGeometry, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
+import * as fbo from "./fbo"
 
-let renderer, scene, camera, width, height, cube
+let renderer, scene, camera, width, height
+let sceneReady, fboLoaded = false
+let loading = true
 
 export function start() {
     try {
@@ -52,18 +45,33 @@ export function start() {
     controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
     controls.update()
 
-    const geometry = new BoxGeometry()
-    const material = new MeshBasicMaterial({color: 0x00ff00})
-    cube = new Mesh(geometry, material)
+    fbo.init(renderer).then(r => {
+        if (fbo.particleMesh != null) {
+            fboLoaded = true
+        }
+    })
 
-    scene.add(cube)
-
-    update()
+    play()
 }
 
-function update() {
-    requestAnimationFrame(update)
-    renderer.render(scene, camera)
+function play() {
+    renderer.setAnimationLoop(() => {
+        onLoad()
+
+        if (sceneReady) {
+            fbo.update()
+            renderer.setRenderTarget(null)
+            renderer.render(scene, camera)
+        }
+    })
+}
+
+function onLoad() {
+    loading = ( !fboLoaded )
+    if ( !loading && !sceneReady ) {
+        scene.add(fbo.particleMesh)
+        sceneReady = true
+    }
 }
 
 function onWindowResize() {
