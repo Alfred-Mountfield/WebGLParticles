@@ -1,4 +1,15 @@
-import {BoxGeometry, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
+import {
+    BoxGeometry,
+    Fog,
+    Mesh,
+    MeshBasicMaterial,
+    PerspectiveCamera,
+    Scene,
+    TOUCH,
+    Vector3,
+    WebGLRenderer
+} from "three";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 let renderer, scene, camera, width, height, cube
 
@@ -15,6 +26,9 @@ export function start() {
     width = window.innerWidth
     height = window.innerHeight
 
+    window.addEventListener('resize', onWindowResize)
+    window.addEventListener('orientationchange', onWindowResize)
+
     renderer.setSize(width, height)
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setClearColor('#1E272C')
@@ -29,6 +43,15 @@ export function start() {
     camera = new PerspectiveCamera(60, width / height, 1, 10_000)
     camera.position.copy(new Vector3(0, 0, 5))
 
+    const controls = new OrbitControls(camera, renderer.domElement)
+    // TODO tweak
+    controls.enablePan = false
+    controls.rotateSpeed = 0.5
+    controls.enableDamping = true
+    controls.dampingFactor = 0.04
+    controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
+    controls.update()
+
     const geometry = new BoxGeometry()
     const material = new MeshBasicMaterial({color: 0x00ff00})
     cube = new Mesh(geometry, material)
@@ -40,13 +63,15 @@ export function start() {
 
 function update() {
     requestAnimationFrame(update)
-
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-
     renderer.render(scene, camera)
 }
 
 function onWindowResize() {
+    width = window.innerWidth
+    height = window.innerHeight
 
+    renderer.setSize(width, height)
+
+    camera.aspect = width / height
+    camera.updateProjectionMatrix()
 }
