@@ -12,6 +12,6 @@ void main() {
     //pos now contains the position of a point in space taht can be transformed
     gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 
-    gl_PointSize = 3.0;
+    gl_PointSize = 1.0;
 }
 `

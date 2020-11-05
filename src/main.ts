@@ -33,8 +33,8 @@ export function start() {
     scene = new Scene()
     scene.fog = new Fog('#1E272C', 0.0016)
 
-    camera = new PerspectiveCamera(60, width / height, 1, 10_000)
-    camera.position.copy(new Vector3(0, 0, 5))
+    camera = new PerspectiveCamera(60, width / height, 0.1, 100_000)
+    camera.position.copy(new Vector3(0, 0, 500))
 
     const controls = new OrbitControls(camera, renderer.domElement)
     // TODO tweak
