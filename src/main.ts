@@ -1,9 +1,11 @@
-import {BoxGeometry, Fog, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
+import {Fog, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import * as fbo from "./fbo"
+import * as particles from "./particles"
 
 let renderer, scene, camera, width, height
-let sceneReady, fboLoaded = false
+let particlesLoaded = false
+let sceneReady = false
 let loading = true
 
 export function start() {
@@ -45,10 +47,12 @@ export function start() {
     controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
     controls.update()
 
-    fbo.init(renderer).then(r => {
-        if (fbo.particleMesh != null) {
-            fboLoaded = true
-        }
+    const [particleBufferHeight, particleBufferWidth] = [256, 256]
+
+    fbo.init(renderer, particleBufferHeight, particleBufferWidth).then(_ => {
+        particles.init(particleBufferHeight, particleBufferWidth).then(_ => {
+            particlesLoaded = true
+        })
     })
 
     play()
@@ -60,6 +64,7 @@ function play() {
 
         if (sceneReady) {
             fbo.update()
+            particles.update(fbo.rtt.texture)
             renderer.setRenderTarget(null)
             renderer.render(scene, camera)
         }
@@ -67,9 +72,9 @@ function play() {
 }
 
 function onLoad() {
-    loading = ( !fboLoaded )
+    loading = ( !particlesLoaded )
     if ( !loading && !sceneReady ) {
-        scene.add(fbo.particleMesh)
+        scene.add(particles.mesh)
         sceneReady = true
     }
 }

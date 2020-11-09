@@ -9,7 +9,6 @@ import {
     NoBlending,
     OrthographicCamera,
     Points,
-    RawShaderMaterial,
     RGBAFormat,
     Scene,
     ShaderMaterial,
@@ -17,23 +16,20 @@ import {
     WebGLRenderTarget
 } from "three"
 
-import quad_vert from './glsl/quad.vertex.js';
+import through_vert from './glsl/through.vertex.js';
 import through_frag from './glsl/through.frag.js';
 import sim_frag from "./glsl/sim.frag.js"
 import sim_vertex from "./glsl/sim.vertex.js"
 import render_frag from "./glsl/render.frag.js"
 import render_vertex from "./glsl/render.vertex.js"
 
-const OPTIONS = {
-    WIDTH: 256,
-    HEIGHT: 256,
-}
+let width, height, scene, camera, renderer, rtt, rtt2, copyShader, simulationMaterial, mesh
 
-let scene, camera, renderer, rtt, rtt2, copyShader, renderMaterial, simulationMaterial, mesh, particleMesh
-
-export async function init(webGlRenderer: WebGLRenderer) {
+export async function init(webGLRenderer: WebGLRenderer, bufferHeight, bufferWidth) {
     return new Promise(resolve => {
-        renderer = webGlRenderer
+        height = bufferHeight
+        width = bufferWidth
+        renderer = webGLRenderer
         scene = new Scene()
         camera = new OrthographicCamera(-1,1,1,-1,1/Math.pow( 2, 53 ),1)
 
@@ -67,7 +63,7 @@ export async function init(webGlRenderer: WebGLRenderer) {
         mesh.frustumCulled = false
         scene.add(mesh)
 
-        rtt = new WebGLRenderTarget(OPTIONS.HEIGHT, OPTIONS.WIDTH, {
+        rtt = new WebGLRenderTarget(height, width, {
             minFilter: NearestFilter,
             magFilter: NearestFilter,
             format: RGBAFormat,
@@ -77,17 +73,6 @@ export async function init(webGlRenderer: WebGLRenderer) {
         rtt2 = rtt.clone()
         copyTexture(getRandomDataTexture(), rtt)
         copyTexture(rtt, rtt2)
-
-        const particleVertices = new Float32Array((OPTIONS.HEIGHT * OPTIONS.WIDTH) * 3)
-        for (let i = 0; i < (OPTIONS.HEIGHT * OPTIONS.WIDTH); i++) {
-            particleVertices[i * 3] = (i % OPTIONS.WIDTH) / OPTIONS.WIDTH
-            particleVertices[i * 3 + 1] = (i / OPTIONS.WIDTH) / OPTIONS.HEIGHT
-        }
-
-        const particleGeometry = new BufferGeometry()
-        particleGeometry.setAttribute('position', new BufferAttribute(particleVertices, 3))
-
-        particleMesh = new Points(particleGeometry, renderMaterial)
 
         resolve(true)
     })
@@ -105,8 +90,6 @@ export function update() {
     renderer.clear()
     renderer.render(scene, camera)
     renderer.setRenderTarget(null)
-
-    particleMesh.material.uniforms.positions.value = rtt.texture
 }
 
 function setupShaders() {
@@ -127,30 +110,14 @@ function setupShaders() {
         depthWrite: false,
         depthTest: false
     })
-
-    renderMaterial = new ShaderMaterial({
-        uniforms: {
-            positions: {
-                value: null,
-            }
-        },
-        vertexShader: render_vertex,
-        fragmentShader: render_frag,
-        blending: AdditiveBlending,
-        transparent: true,
-        fog: false,
-        lights: false,
-        depthWrite: false,
-        depthTest: false
-    })
-
+    
     copyShader = new ShaderMaterial( {
         uniforms: {
             positions: {
                 value: positions
             }
         },
-        vertexShader: quad_vert,
+        vertexShader: through_vert,
         fragmentShader: through_frag,
         fog: false,
         lights: false,
@@ -169,21 +136,21 @@ function copyTexture(inRenderTarget, outRenderTarget) {
 }
 
 function createRandomTexture() {
-    const randomData = new Float32Array( OPTIONS.HEIGHT * OPTIONS.WIDTH * 4 )
-    for ( let x = 0; x < OPTIONS.WIDTH; x ++ ) {
+    const randomData = new Float32Array( height * width * 4 )
+    for ( let x = 0; x < width; x ++ ) {
 
-        for ( let z = 0; z < OPTIONS.HEIGHT; z ++ ) {
+        for ( let z = 0; z < height; z ++ ) {
 
-            randomData[ x * OPTIONS.HEIGHT * 4 + z * 4 ] = Math.random() * 2 - 1
-            randomData[ x * OPTIONS.HEIGHT * 4 + z * 4 + 1 ] = Math.random() * 2 - 1
-            randomData[ x * OPTIONS.HEIGHT * 4 + z * 4 + 2 ] = Math.random() * 2 - 1
+            randomData[ x * height * 4 + z * 4 ] = Math.random() * 2 - 1
+            randomData[ x * height * 4 + z * 4 + 1 ] = Math.random() * 2 - 1
+            randomData[ x * height * 4 + z * 4 + 2 ] = Math.random() * 2 - 1
 
         }
 
     }
 
     const duckRtt = {texture: undefined} // duck-typed RenderTarget
-    duckRtt.texture = new DataTexture( randomData, OPTIONS.HEIGHT, OPTIONS.WIDTH, RGBAFormat, FloatType )
+    duckRtt.texture = new DataTexture( randomData, height, width, RGBAFormat, FloatType )
     duckRtt.texture.minFilter = NearestFilter
     duckRtt.texture.magFilter = NearestFilter
     duckRtt.texture.needsUpdate = true
@@ -195,7 +162,7 @@ function createRandomTexture() {
 }
 
 function getRandomDataTexture() {
-    let len = OPTIONS.HEIGHT * OPTIONS.WIDTH * 4
+    let len = height * width * 4
     const randomData = new Float32Array(len)
 
     while (len--) {
@@ -203,7 +170,7 @@ function getRandomDataTexture() {
     }
 
     const duckRtt = {texture: undefined} // duck-typed RenderTarget
-    duckRtt.texture = new DataTexture(randomData, OPTIONS.HEIGHT, OPTIONS.WIDTH, RGBAFormat, FloatType)
+    duckRtt.texture = new DataTexture(randomData, height, width, RGBAFormat, FloatType)
     duckRtt.texture.minFilter = NearestFilter
     duckRtt.texture.magFilter = NearestFilter
     duckRtt.texture.needsUpdate = true
@@ -213,4 +180,4 @@ function getRandomDataTexture() {
     return duckRtt
 }
 
-export {rtt, particleMesh}
+export {rtt}
