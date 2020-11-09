@@ -1,14 +1,11 @@
 import {
-    AdditiveBlending,
     BufferAttribute,
-    BufferGeometry,
-    DataTexture,
+    BufferGeometry, DataTexture,
     FloatType,
     Mesh,
     NearestFilter,
     NoBlending,
     OrthographicCamera,
-    Points,
     RGBAFormat,
     Scene,
     ShaderMaterial,
@@ -20,12 +17,10 @@ import through_vert from './glsl/through.vertex.js';
 import through_frag from './glsl/through.frag.js';
 import sim_frag from "./glsl/sim.frag.js"
 import sim_vertex from "./glsl/sim.vertex.js"
-import render_frag from "./glsl/render.frag.js"
-import render_vertex from "./glsl/render.vertex.js"
 
 let width, height, scene, camera, renderer, rtt, rtt2, copyShader, simulationMaterial, mesh
 
-export async function init(webGLRenderer: WebGLRenderer, bufferHeight, bufferWidth) {
+export async function init(webGLRenderer: WebGLRenderer, initialPositions, bufferHeight, bufferWidth) {
     return new Promise(resolve => {
         height = bufferHeight
         width = bufferWidth
@@ -33,7 +28,7 @@ export async function init(webGLRenderer: WebGLRenderer, bufferHeight, bufferWid
         scene = new Scene()
         camera = new OrthographicCamera(-1,1,1,-1,1/Math.pow( 2, 53 ),1)
 
-        setupShaders()
+        setupShaders(initialPositions)
 
         const simGeometry = new BufferGeometry()
         const positionVertices = new Float32Array(
@@ -70,8 +65,10 @@ export async function init(webGLRenderer: WebGLRenderer, bufferHeight, bufferWid
             type: FloatType
         })
 
+        const duckPositionsTarget = wrapPositionsInTexture(initialPositions)
+
         rtt2 = rtt.clone()
-        copyTexture(getRandomDataTexture(), rtt)
+        copyTexture(duckPositionsTarget, rtt)
         copyTexture(rtt, rtt2)
 
         resolve(true)
@@ -92,9 +89,7 @@ export function update() {
     renderer.setRenderTarget(null)
 }
 
-function setupShaders() {
-    const positions = getRandomDataTexture().texture
-
+function setupShaders(positions) {
     simulationMaterial = new ShaderMaterial({
         uniforms: {
             positions: {
@@ -126,6 +121,19 @@ function setupShaders() {
     } );
 }
 
+function wrapPositionsInTexture(positions: Float32Array) {
+    const duckRtt = {texture: undefined} // duck-typed RenderTarget
+    duckRtt.texture = new DataTexture(positions, height, width, RGBAFormat, FloatType)
+    duckRtt.texture.minFilter = NearestFilter
+    duckRtt.texture.magFilter = NearestFilter
+    duckRtt.texture.needsUpdate = true
+    duckRtt.texture.generateMipmaps = false
+    duckRtt.texture.flipY = false
+
+    return duckRtt
+}
+
+
 function copyTexture(inRenderTarget, outRenderTarget) {
     mesh.material = copyShader
     copyShader.uniforms.positions.value = inRenderTarget.texture
@@ -133,51 +141,6 @@ function copyTexture(inRenderTarget, outRenderTarget) {
     renderer.setRenderTarget(outRenderTarget)
     renderer.render(scene, camera)
     renderer.setRenderTarget(null)
-}
-
-function createRandomTexture() {
-    const randomData = new Float32Array( height * width * 4 )
-    for ( let x = 0; x < width; x ++ ) {
-
-        for ( let z = 0; z < height; z ++ ) {
-
-            randomData[ x * height * 4 + z * 4 ] = Math.random() * 2 - 1
-            randomData[ x * height * 4 + z * 4 + 1 ] = Math.random() * 2 - 1
-            randomData[ x * height * 4 + z * 4 + 2 ] = Math.random() * 2 - 1
-
-        }
-
-    }
-
-    const duckRtt = {texture: undefined} // duck-typed RenderTarget
-    duckRtt.texture = new DataTexture( randomData, height, width, RGBAFormat, FloatType )
-    duckRtt.texture.minFilter = NearestFilter
-    duckRtt.texture.magFilter = NearestFilter
-    duckRtt.texture.needsUpdate = true
-    duckRtt.texture.generateMipmaps = false
-    duckRtt.texture.flipY = false
-
-    return duckRtt
-
-}
-
-function getRandomDataTexture() {
-    let len = height * width * 4
-    const randomData = new Float32Array(len)
-
-    while (len--) {
-        randomData[len] = ( Math.random() * 2 - 1 ) * 256
-    }
-
-    const duckRtt = {texture: undefined} // duck-typed RenderTarget
-    duckRtt.texture = new DataTexture(randomData, height, width, RGBAFormat, FloatType)
-    duckRtt.texture.minFilter = NearestFilter
-    duckRtt.texture.magFilter = NearestFilter
-    duckRtt.texture.needsUpdate = true
-    duckRtt.texture.generateMipmaps = false
-    duckRtt.texture.flipY = false
-
-    return duckRtt
 }
 
 export {rtt}
