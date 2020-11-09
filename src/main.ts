@@ -47,7 +47,7 @@ export function start(initialPositions: Float32Array, particleBufferHeight, part
     scene.fog = new Fog('#1E272C', 0.0016)
 
     camera = new PerspectiveCamera(60, width / height, 0.1, 100_000)
-    camera.position.copy(new Vector3(0, 0, 500))
+    camera.position.copy(new Vector3(50, 150, 250))
 
     const controls = new OrbitControls(camera, renderer.domElement)
     // TODO tweak
