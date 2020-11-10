@@ -1,5 +1,5 @@
 // currently copied from http://barradeau.com/blog/?p=621
-export default /* glsl */`
+
 //float texture containing the positions of each particle
 uniform sampler2D positions;
 
@@ -14,4 +14,4 @@ void main() {
 
     gl_PointSize = 1.0;
 }
-`
+

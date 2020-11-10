@@ -1,4 +1,3 @@
-export default /* glsl */`
 precision highp float;
 
 uniform sampler2D positions;
@@ -9,4 +8,4 @@ void main() {
 	gl_FragColor = texture2D( positions, vUv );
 
 }
-`;
+

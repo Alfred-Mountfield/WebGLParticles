@@ -1,15 +1,4 @@
-import {
-    DataTexture,
-    FloatType,
-    Fog,
-    NearestFilter,
-    PerspectiveCamera,
-    RGBAFormat,
-    Scene,
-    TOUCH,
-    Vector3,
-    WebGLRenderer
-} from "three"
+import {Fog, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import * as fbo from "./fbo"
 import * as particles from "./particles"
@@ -19,7 +8,7 @@ let particlesLoaded = false
 let sceneReady = false
 let loading = true
 
-export function start(initialPositions: Float32Array, particleBufferHeight, particleBufferWidth) {
+export function start(initialPositions: Float32Array, particleBufferHeight, particleBufferWidth, bounds: Float32Array) {
     try {
         // @ts-ignore declaration is missing failIfMajorPerformanceCaveat for some reason
         renderer = new WebGLRenderer( {antialias: true, failIfMajorPerformanceCaveat: true})
@@ -58,7 +47,7 @@ export function start(initialPositions: Float32Array, particleBufferHeight, part
     controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
     controls.update()
 
-    fbo.init(renderer, initialPositions, particleBufferHeight, particleBufferWidth).then(_ => {
+    fbo.init(renderer, initialPositions, particleBufferHeight, particleBufferWidth, bounds).then(_ => {
         particles.init(particleBufferHeight, particleBufferWidth).then(_ => {
             particlesLoaded = true
         })

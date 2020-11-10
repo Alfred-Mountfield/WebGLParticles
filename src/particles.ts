@@ -6,8 +6,8 @@ import {
     ShaderMaterial,
     Texture,
 } from "three";
-import render_vertex from "./glsl/render.vertex";
-import render_frag from "./glsl/render.frag";
+import render_vertex from "./glsl/render.vs.glsl";
+import render_frag from "./glsl/render.fs.glsl";
 
 let mesh, renderMaterial
 

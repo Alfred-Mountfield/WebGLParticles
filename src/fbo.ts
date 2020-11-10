@@ -1,6 +1,6 @@
 import {
     BufferAttribute,
-    BufferGeometry, DataTexture,
+    BufferGeometry,  DataTexture,
     FloatType,
     Mesh,
     NearestFilter,
@@ -13,14 +13,16 @@ import {
     WebGLRenderTarget
 } from "three"
 
-import through_vert from './glsl/through.vertex.js';
-import through_frag from './glsl/through.frag.js';
-import sim_frag from "./glsl/sim.frag.js"
-import sim_vertex from "./glsl/sim.vertex.js"
+import through_vert from './glsl/through.vs.glsl'
+import through_frag from './glsl/through.fs.glsl'
+// import sim_frag from "./glsl/sim.static.fs.glsl"
+import sim_frag from "./glsl/sim.moving.fs.glsl"
+import sim_vertex from "./glsl/sim.vs.glsl"
 
 let width, height, scene, camera, renderer, rtt, rtt2, copyShader, simulationMaterial, mesh
+let time = 0
 
-export async function init(webGLRenderer: WebGLRenderer, initialPositions, bufferHeight, bufferWidth) {
+export async function init(webGLRenderer: WebGLRenderer, initialPositions, bufferHeight, bufferWidth, bounds) {
     return new Promise(resolve => {
         height = bufferHeight
         width = bufferWidth
@@ -28,7 +30,9 @@ export async function init(webGLRenderer: WebGLRenderer, initialPositions, buffe
         scene = new Scene()
         camera = new OrthographicCamera(-1,1,1,-1,1/Math.pow( 2, 53 ),1)
 
-        setupShaders(initialPositions)
+        const duckPositionsTarget = wrapPositionsInTexture(initialPositions)
+
+        setupShaders(duckPositionsTarget.texture, bounds)
 
         const simGeometry = new BufferGeometry()
         const positionVertices = new Float32Array(
@@ -65,8 +69,6 @@ export async function init(webGLRenderer: WebGLRenderer, initialPositions, buffe
             type: FloatType
         })
 
-        const duckPositionsTarget = wrapPositionsInTexture(initialPositions)
-
         rtt2 = rtt.clone()
         copyTexture(duckPositionsTarget, rtt)
         copyTexture(rtt, rtt2)
@@ -76,12 +78,15 @@ export async function init(webGLRenderer: WebGLRenderer, initialPositions, buffe
 }
 
 export function update() {
+    time += 1
+
     const tmp = rtt
     rtt = rtt2
     rtt2 = tmp
 
     mesh.material = simulationMaterial
     simulationMaterial.uniforms.positions.value = rtt2.texture
+    simulationMaterial.uniforms.time.value = time
 
     renderer.setRenderTarget(rtt)
     renderer.clear()
@@ -89,11 +94,28 @@ export function update() {
     renderer.setRenderTarget(null)
 }
 
-function setupShaders(positions) {
+function setupShaders(positions, bounds) {
+    const randomVals = new Float32Array(height * width)
+    for (let i = 0; i < height * width; i++) {
+        randomVals[i] = Math.random() - 0.5
+    }
+
     simulationMaterial = new ShaderMaterial({
         uniforms: {
             positions: {
                 value: positions
+            },
+            initialPositions: {
+                value: positions
+            },
+            bounds: {
+                value: bounds
+            },
+            time: {
+                value: 0.0
+            },
+            random: {
+                value: randomVals
             }
         },
         vertexShader: sim_vertex,

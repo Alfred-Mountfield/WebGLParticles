@@ -3,8 +3,11 @@ import {start} from "./main";
 
 function randomPositions() {
     const [particleBufferHeight, particleBufferWidth] = [512, 512]
-    const positions = createRandomPositionsData(particleBufferHeight, particleBufferWidth)
-    start(positions, particleBufferHeight, particleBufferWidth)
+    const maxVal = 1024
+    const positions = createRandomPositionsData(particleBufferHeight, particleBufferWidth, maxVal)
+    const bounds = new Float32Array(3)
+    bounds[0] = bounds[1] = bounds[2] = 2 * maxVal
+    start(positions, particleBufferHeight, particleBufferWidth, bounds)
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
@@ -16,20 +19,21 @@ function loadImage(imagePath = 'src/images/noise_3.jpg') {
 
         const elevation = 30
         const positions = getPositionsFromGreyScaleImage(null, img, height, width, elevation)
+        const bounds = new Float32Array(3)
+        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(height, width, elevation)
 
-
-        start(positions, height, width)
+        start(positions, height, width, bounds)
     }
     img.src = imagePath
 }
 
 // random 3D co-ordinates
-function createRandomPositionsData(height, width) {
+function createRandomPositionsData(height, width, maxVal) {
     let len = height * width * 4
     const randomData = new Float32Array(len)
 
     while (len--) {
-        randomData[len] = (Math.random() * 2 - 1) * 1024
+        randomData[len] = (Math.random() * 2 - 1) * maxVal
     }
 
     return randomData
