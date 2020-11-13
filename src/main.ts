@@ -1,14 +1,20 @@
 import {Fog, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
-import * as particles from "./particles"
-import * as gpuCompute from "../gpuCompute"
+import * as points from "./particles/points"
+import * as triangles from "./particles/triangles"
+import * as gpuCompute from "./gpuCompute"
+import * as Stats from 'stats.js'
 
+let particles: typeof points | typeof triangles
+let stats
 let renderer, scene, camera, width, height
 let particlesLoaded = false
 let sceneReady = false
 let loading = true
 
-export function start(initialPositions: Float32Array, particleBufferWidth: number, particleBufferHeight: number, bounds: Float32Array) {
+export function start(initialPositions: Float32Array, particleBufferWidth: number, particleBufferHeight: number, bounds: Float32Array, meshes=false) {
+    particles = meshes ? triangles : points
+
     try {
         // @ts-ignore declaration is missing failIfMajorPerformanceCaveat for some reason
         renderer = new WebGLRenderer( {antialias: true, failIfMajorPerformanceCaveat: true})
@@ -17,6 +23,8 @@ export function start(initialPositions: Float32Array, particleBufferWidth: numbe
         // todo
         return
     }
+
+    stats = new Stats()
 
     width = window.innerWidth
     height = window.innerHeight
@@ -31,6 +39,7 @@ export function start(initialPositions: Float32Array, particleBufferWidth: numbe
     renderer.sortObjects = false
 
     document.body.appendChild(renderer.domElement)
+    document.body.appendChild(stats.dom)
 
     scene = new Scene()
     scene.fog = new Fog('#1E272C', 0.0016)
@@ -57,13 +66,18 @@ export function start(initialPositions: Float32Array, particleBufferWidth: numbe
 
 function play() {
     renderer.setAnimationLoop(() => {
+
         onLoad()
 
         if (sceneReady) {
+            stats.begin()
+
             gpuCompute.update()
             particles.update(gpuCompute.getPositionTexture())
             renderer.setRenderTarget(null)
             renderer.render(scene, camera)
+
+            stats.end()
         }
     })
 }

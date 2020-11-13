@@ -1,9 +1,9 @@
 import {WEBGL} from "three/examples/jsm/WebGL"
-import {start} from "./points/main";
+import {start} from "./main";
 
 function randomPositions() {
-    const [particleBufferWidth, particleBufferHeight] = [512, 512]
-    const maxVal = 50
+    const [particleBufferWidth, particleBufferHeight] = [4096, 4096]
+    const maxVal = 10
     const positions = createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
     const bounds = new Float32Array(3)
     bounds[0] = bounds[1] = bounds[2] = 2 * maxVal
@@ -11,7 +11,7 @@ function randomPositions() {
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
-function loadImage(imagePath = 'src/images/noise_4.png') {
+function loadImage(imagePath = 'src/textures/noise_4.png') {
     const img = new Image()
     img.onload = () => {
         const width = img.width

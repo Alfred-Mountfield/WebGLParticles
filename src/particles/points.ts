@@ -14,26 +14,28 @@ let mesh, renderMaterial
 export async function init(width, height) {
     setupShaders()
 
-    const particleVertices = new Float32Array((width * height) * 3)
+    // we have to supply a position array so might as well use it for references
+    // create a normalized square so that x, y is the uv
+    const references = new Float32Array((width * height) * 3)
     for (let i = 0; i < (width * height); i++) {
-        particleVertices[i * 3] = (i % width) / width
-        particleVertices[i * 3 + 1] = (i / width) / height
+        references[i * 3] = (i % width) / width
+        references[i * 3 + 1] = (i / width) / height
     }
 
     const particleGeometry = new BufferGeometry()
-    particleGeometry.setAttribute('position', new BufferAttribute(particleVertices, 3))
+    particleGeometry.setAttribute('position', new BufferAttribute(references, 3))
 
     mesh = new Points(particleGeometry, renderMaterial)
 }
 
 export function update(newPositions: Texture) {
-    mesh.material.uniforms.positions.value = newPositions
+    mesh.material.uniforms.texturePosition.value = newPositions
 }
 
 function setupShaders() {
     renderMaterial = new ShaderMaterial({
         uniforms: {
-            positions: {
+            texturePosition: {
                 value: null,
             }
         },
