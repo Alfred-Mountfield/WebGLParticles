@@ -9,7 +9,7 @@ import {
 import render_vertex from "../glsl/points/render.vs.glsl";
 import render_frag from "../glsl/common/render.fs.glsl";
 
-let mesh, renderMaterial
+let mesh: Points, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
 export async function init(width, height) {
     setupShaders()
@@ -22,14 +22,20 @@ export async function init(width, height) {
         references[i * 3 + 1] = (i / width) / height
     }
 
-    const particleGeometry = new BufferGeometry()
-    particleGeometry.setAttribute('position', new BufferAttribute(references, 3))
+    geometry = new BufferGeometry()
+    geometry.setAttribute('position', new BufferAttribute(references, 3))
 
-    mesh = new Points(particleGeometry, renderMaterial)
+    mesh = new Points(geometry, renderMaterial)
 }
 
 export function update(newPositions: Texture) {
+    // @ts-ignore
     mesh.material.uniforms.texturePosition.value = newPositions
+}
+
+export function dispose() {
+    geometry.dispose()
+    renderMaterial.dispose()
 }
 
 function setupShaders() {

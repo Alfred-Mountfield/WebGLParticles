@@ -2,7 +2,7 @@ import {BufferAttribute, BufferGeometry, DoubleSide, Mesh, ShaderMaterial, Textu
 import render_vertex from "../glsl/triangles/render.vs.glsl";
 import render_frag from "../glsl/common/render.fs.glsl";
 
-let mesh, renderMaterial
+let mesh: Mesh, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
 export async function init(width, height, scale=0.1) {
     setupShaders()
@@ -37,7 +37,7 @@ export async function init(width, height, scale=0.1) {
         }
     }
 
-    const geometry = new BufferGeometry()
+    geometry = new BufferGeometry()
     geometry.setAttribute('position', new BufferAttribute(vertices, 3))
     geometry.setAttribute('reference', new BufferAttribute(references, 2))
     geometry.scale(scale, scale, scale)
@@ -48,8 +48,15 @@ export async function init(width, height, scale=0.1) {
 }
 
 export function update(newPositions: Texture) {
+    // @ts-ignore
     mesh.material.uniforms.texturePosition.value = newPositions
 }
+
+export function dispose() {
+    geometry.dispose()
+    renderMaterial.dispose()
+}
+
 
 function setupShaders() {
     renderMaterial = new ShaderMaterial({

@@ -1,10 +1,10 @@
 import {GPUComputationRenderer, Variable} from "three/examples/jsm/misc/GPUComputationRenderer"
-import {DataTexture, HalfFloatType, RepeatWrapping, WebGLRenderer} from "three"
+import {DataTexture, HalfFloatType, RepeatWrapping, Texture, WebGLRenderer, WebGLRenderTarget} from "three"
 
 import sim_frag from "./glsl/points/sim.static.fs.glsl"
 // import sim_frag from "./glsl/points/sim.moving.random.fs.glsl"
 
-let gpuCompute: GPUComputationRenderer, positionVariable: Variable, positionUniforms
+let gpuCompute: GPUComputationRenderer, dtPosition: Texture, positionVariable: Variable, positionUniforms
 let time = 0
 
 export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, initialPositions, bounds) {
@@ -14,7 +14,7 @@ export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, in
         gpuCompute.setDataType(HalfFloatType)
     }
 
-    const dtPosition = gpuCompute.createTexture()
+    dtPosition = gpuCompute.createTexture()
     // const dtVelocity = gpuCompute.createTexture()
 
     fillTextures(dtPosition, initialPositions)
@@ -51,6 +51,14 @@ export function update() {
     time += 1
     positionUniforms["time"] = {value: time}
     gpuCompute.compute()
+}
+
+export function dispose() {
+    positionVariable.renderTargets.forEach((rt: WebGLRenderTarget) => {
+        rt.texture.dispose()
+        rt.dispose()
+    })
+    dtPosition.dispose()
 }
 
 function fillTextures(dtPosition: DataTexture, initialPositions: Float32Array) {

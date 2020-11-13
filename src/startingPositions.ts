@@ -1,28 +1,19 @@
-import {WEBGL} from "three/examples/jsm/WebGL"
-import {start} from "./main";
-
-function randomPositions() {
-    const [particleBufferWidth, particleBufferHeight] = [2048, 2048]
-    const maxVal = 10
-    const positions = createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
-    const bounds = new Float32Array(3)
-    bounds[0] = bounds[1] = bounds[2] = 2 * maxVal
-    start(positions, particleBufferWidth, particleBufferHeight, bounds)
+export function randomPositions(particleBufferWidth, particleBufferHeight, maxVal=20) {
+    return createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
-function loadImage(imagePath = 'src/textures/noise_4.png') {
+export function loadImage(imagePath = 'src/textures/noise_4.png', maxVal, callback: (positions, width, height, bounds) => void) {
     const img = new Image()
     img.onload = () => {
         const width = img.width
         const height = img.height
 
-        const elevation = 30
-        const positions = getPositionsFromGreyScaleImage(null, img, width, height, elevation)
+        const positions = getPositionsFromGreyScaleImage(null, img, width, height, maxVal)
         const bounds = new Float32Array(3)
-        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(width, height, elevation)
+        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(width, height, maxVal)
 
-        start(positions, width, height, bounds)
+        callback(positions, width, height, bounds)
     }
     img.src = imagePath
 }
@@ -72,14 +63,3 @@ function getPositionsFromGreyScaleImage(canvas, img, width, height, elevation) {
 
     return positions
 }
-
-
-if (WEBGL.isWebGLAvailable()) {
-    loadImage()
-    // randomPositions()
-
-} else {
-    const warning = WEBGL.getWebGLErrorMessage()
-    document.body.appendChild(warning)
-}
-
