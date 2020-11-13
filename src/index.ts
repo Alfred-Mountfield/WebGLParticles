@@ -2,7 +2,7 @@ import {WEBGL} from "three/examples/jsm/WebGL"
 import {start} from "./main";
 
 function randomPositions() {
-    const [particleBufferWidth, particleBufferHeight] = [4096, 4096]
+    const [particleBufferWidth, particleBufferHeight] = [2048, 2048]
     const maxVal = 10
     const positions = createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
     const bounds = new Float32Array(3)
@@ -75,8 +75,8 @@ function getPositionsFromGreyScaleImage(canvas, img, width, height, elevation) {
 
 
 if (WEBGL.isWebGLAvailable()) {
-    // loadImage()
-    randomPositions()
+    loadImage()
+    // randomPositions()
 
 } else {
     const warning = WEBGL.getWebGLErrorMessage()
