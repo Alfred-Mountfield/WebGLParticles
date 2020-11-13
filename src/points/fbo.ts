@@ -22,10 +22,10 @@ import sim_vertex from "../glsl/common/sim.vs.glsl"
 let width, height, scene, camera, renderer, rtt, rtt2, copyShader, simulationMaterial, mesh
 let time = 0
 
-export async function init(webGLRenderer: WebGLRenderer, initialPositions, bufferHeight, bufferWidth, bounds) {
+export async function init(webGLRenderer: WebGLRenderer, initialPositions, bufferWidth, bufferHeight, bounds) {
     return new Promise(resolve => {
-        height = bufferHeight
         width = bufferWidth
+        height = bufferHeight
         renderer = webGLRenderer
         scene = new Scene()
         camera = new OrthographicCamera(-1,1,1,-1,1/Math.pow( 2, 53 ),1)
@@ -62,7 +62,7 @@ export async function init(webGLRenderer: WebGLRenderer, initialPositions, buffe
         mesh.frustumCulled = false
         scene.add(mesh)
 
-        rtt = new WebGLRenderTarget(height, width, {
+        rtt = new WebGLRenderTarget(width, height,{
             minFilter: NearestFilter,
             magFilter: NearestFilter,
             format: RGBAFormat,
@@ -95,8 +95,8 @@ export function update() {
 }
 
 function setupShaders(positions, bounds) {
-    const randomVals = new Float32Array(height * width)
-    for (let i = 0; i < height * width; i++) {
+    const randomVals = new Float32Array(width * height)
+    for (let i = 0; i < width * height; i++) {
         randomVals[i] = Math.random() - 0.5
     }
 
@@ -145,7 +145,7 @@ function setupShaders(positions, bounds) {
 
 function wrapPositionsInTexture(positions: Float32Array) {
     const duckRtt = {texture: undefined} // duck-typed RenderTarget
-    duckRtt.texture = new DataTexture(positions, height, width, RGBAFormat, FloatType)
+    duckRtt.texture = new DataTexture(positions, width, height, RGBAFormat, FloatType)
     duckRtt.texture.minFilter = NearestFilter
     duckRtt.texture.magFilter = NearestFilter
     duckRtt.texture.needsUpdate = true

@@ -2,34 +2,34 @@ import {WEBGL} from "three/examples/jsm/WebGL"
 import {start} from "./points/main";
 
 function randomPositions() {
-    const [particleBufferHeight, particleBufferWidth] = [512, 512]
+    const [particleBufferWidth, particleBufferHeight] = [512, 512]
     const maxVal = 1024
-    const positions = createRandomPositionsData(particleBufferHeight, particleBufferWidth, maxVal)
+    const positions = createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
     const bounds = new Float32Array(3)
     bounds[0] = bounds[1] = bounds[2] = 2 * maxVal
-    start(positions, particleBufferHeight, particleBufferWidth, bounds)
+    start(positions, particleBufferWidth, particleBufferHeight, bounds)
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
 function loadImage(imagePath = 'src/images/noise_4.png') {
     const img = new Image()
     img.onload = () => {
-        const height = img.height
         const width = img.width
+        const height = img.height
 
         const elevation = 30
-        const positions = getPositionsFromGreyScaleImage(null, img, height, width, elevation)
+        const positions = getPositionsFromGreyScaleImage(null, img, width, height, elevation)
         const bounds = new Float32Array(3)
-        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(height, width, elevation)
+        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(width, height, elevation)
 
-        start(positions, height, width, bounds)
+        start(positions, width, height, bounds)
     }
     img.src = imagePath
 }
 
 // random 3D co-ordinates
-function createRandomPositionsData(height, width, maxVal) {
-    let len = height * width * 4
+function createRandomPositionsData(width, height, maxVal) {
+    let len = width *  height * 4
     const randomData = new Float32Array(len)
 
     while (len--) {
@@ -39,22 +39,22 @@ function createRandomPositionsData(height, width, maxVal) {
     return randomData
 }
 
-function getCanvas(h, w) {
+function getCanvas(w, h) {
     const canvas = document.createElement("canvas")
-    canvas.height = h || 512
     canvas.width = w || 512
+    canvas.height = h || 512
     return canvas
 }
 
-function getContext(canvas, h, w) {
-    canvas = canvas || getCanvas(h, w)
-    canvas.height = h || canvas.height
+function getContext(canvas, w, h) {
+    canvas = canvas || getCanvas(w, h)
     canvas.width = w || canvas.width
+    canvas.height = h || canvas.height
     return canvas.getContext("2d")
 }
 
-function getPositionsFromGreyScaleImage(canvas, img, height, width, elevation) {
-    const ctx = getContext(canvas, height, width)
+function getPositionsFromGreyScaleImage(canvas, img, width, height, elevation) {
+    const ctx = getContext(canvas, width, height)
     ctx.drawImage(img, 0, 0)
 
     const data = ctx.getImageData(0, 0, width, height).data

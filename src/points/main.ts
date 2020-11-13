@@ -8,7 +8,7 @@ let particlesLoaded = false
 let sceneReady = false
 let loading = true
 
-export function start(initialPositions: Float32Array, particleBufferHeight, particleBufferWidth, bounds: Float32Array) {
+export function start(initialPositions: Float32Array, particleBufferWidth, particleBufferHeight, bounds: Float32Array) {
     try {
         // @ts-ignore declaration is missing failIfMajorPerformanceCaveat for some reason
         renderer = new WebGLRenderer( {antialias: true, failIfMajorPerformanceCaveat: true})
@@ -47,8 +47,8 @@ export function start(initialPositions: Float32Array, particleBufferHeight, part
     controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
     controls.update()
 
-    fbo.init(renderer, initialPositions, particleBufferHeight, particleBufferWidth, bounds).then(_ => {
-        particles.init(particleBufferHeight, particleBufferWidth).then(_ => {
+    fbo.init(renderer, initialPositions, particleBufferWidth, particleBufferHeight, bounds).then(_ => {
+        particles.init(particleBufferWidth, particleBufferHeight).then(_ => {
             particlesLoaded = true
         })
     })

@@ -11,11 +11,11 @@ import render_frag from "../glsl/common/render.fs.glsl";
 
 let mesh, renderMaterial
 
-export async function init(height, width) {
+export async function init(width, height) {
     setupShaders()
 
-    const particleVertices = new Float32Array((height * width) * 3)
-    for (let i = 0; i < (height * width); i++) {
+    const particleVertices = new Float32Array((width * height) * 3)
+    for (let i = 0; i < (width * height); i++) {
         particleVertices[i * 3] = (i % width) / width
         particleVertices[i * 3 + 1] = (i / width) / height
     }
