@@ -20,7 +20,7 @@ void main() {
     }
     velocity = normalize(velocity);
 
-    pos += velocity;
+    pos += velocity * 0.1;
 
     if (any(greaterThan(abs(pos), bounds))) {
         pos = initialPos;

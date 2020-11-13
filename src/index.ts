@@ -1,5 +1,5 @@
 import {WEBGL} from "three/examples/jsm/WebGL"
-import {start} from "./main";
+import {start} from "./points/main";
 
 function randomPositions() {
     const [particleBufferHeight, particleBufferWidth] = [512, 512]
@@ -11,7 +11,7 @@ function randomPositions() {
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
-function loadImage(imagePath = 'src/images/noise_3.jpg') {
+function loadImage(imagePath = 'src/images/noise_4.png') {
     const img = new Image()
     img.onload = () => {
         const height = img.height

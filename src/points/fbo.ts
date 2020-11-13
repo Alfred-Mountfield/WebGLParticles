@@ -13,11 +13,11 @@ import {
     WebGLRenderTarget
 } from "three"
 
-import through_vert from './glsl/through.vs.glsl'
-import through_frag from './glsl/through.fs.glsl'
-// import sim_frag from "./glsl/sim.static.fs.glsl"
-import sim_frag from "./glsl/sim.moving.fs.glsl"
-import sim_vertex from "./glsl/sim.vs.glsl"
+import through_vert from '../glsl/common/through.vs.glsl'
+import through_frag from '../glsl/common/through.fs.glsl'
+import sim_frag from "../glsl/points/sim.static.fs.glsl"
+// import sim_frag from "./glsl/points/sim.moving.random.fs.glsl"
+import sim_vertex from "../glsl/common/sim.vs.glsl"
 
 let width, height, scene, camera, renderer, rtt, rtt2, copyShader, simulationMaterial, mesh
 let time = 0
