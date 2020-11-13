@@ -1,7 +1,5 @@
-@import ./classicnoise2D;
+@import ../common/classicnoise2D;
 
-varying vec2 vUv;
-uniform sampler2D positions;
 uniform sampler2D initialPositions;
 uniform sampler2D random;
 
@@ -10,9 +8,11 @@ uniform float time;
 
 void main() {
 
-    vec3 pos = texture2D(positions, vUv).xyz;
-    vec3 initialPos = texture2D(initialPositions, vUv).xyz;
-    float random = texture2D(random, vUv).x;
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+
+    vec3 pos = texture2D(texturePosition, uv).xyz;
+    vec3 initialPos = texture2D(initialPositions, uv).xyz;
+    float random = texture2D(random, uv).x;
 
     vec3 velocity = vec3(cnoise(vec2(pos.z + time / 3.0, 50)), cnoise(vec2(pos.x + time / 5.0, 50)), cnoise(vec2(pos.y + time / 7.0, 50)));
     if (all(equal(vec3(0), velocity))) {

@@ -1,9 +1,8 @@
 import {GPUComputationRenderer, Variable} from "three/examples/jsm/misc/GPUComputationRenderer"
 import {DataTexture, HalfFloatType, WebGLRenderer} from "three"
 
-import sim_frag from "./glsl/points/sim.static.fs.glsl"
-// import sim_frag from "./glsl/points/sim.moving.random.fs.glsl"
-// import sim_vertex from "./glsl/common/sim.vs.glsl"
+// import sim_frag from "./glsl/points/sim.static.fs.glsl"
+import sim_frag from "./glsl/points/sim.moving.random.fs.glsl"
 
 let gpuCompute: GPUComputationRenderer, positionVariable: Variable, positionUniforms
 let time = 0
