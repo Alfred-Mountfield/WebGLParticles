@@ -1,14 +1,14 @@
 import {Fog, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
-import * as fbo from "./fbo"
 import * as particles from "./particles"
+import * as gpuCompute from "../gpuCompute"
 
 let renderer, scene, camera, width, height
 let particlesLoaded = false
 let sceneReady = false
 let loading = true
 
-export function start(initialPositions: Float32Array, particleBufferWidth, particleBufferHeight, bounds: Float32Array) {
+export function start(initialPositions: Float32Array, particleBufferWidth: number, particleBufferHeight: number, bounds: Float32Array) {
     try {
         // @ts-ignore declaration is missing failIfMajorPerformanceCaveat for some reason
         renderer = new WebGLRenderer( {antialias: true, failIfMajorPerformanceCaveat: true})
@@ -47,10 +47,9 @@ export function start(initialPositions: Float32Array, particleBufferWidth, parti
     controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
     controls.update()
 
-    fbo.init(renderer, initialPositions, particleBufferWidth, particleBufferHeight, bounds).then(_ => {
-        particles.init(particleBufferWidth, particleBufferHeight).then(_ => {
-            particlesLoaded = true
-        })
+    gpuCompute.init(renderer, particleBufferWidth, particleBufferHeight, initialPositions, bounds)
+    particles.init(particleBufferWidth, particleBufferHeight).then(_ => {
+        particlesLoaded = true
     })
 
     play()
@@ -61,8 +60,8 @@ function play() {
         onLoad()
 
         if (sceneReady) {
-            fbo.update()
-            particles.update(fbo.rtt.texture)
+            gpuCompute.update()
+            particles.update(gpuCompute.getPositionTexture())
             renderer.setRenderTarget(null)
             renderer.render(scene, camera)
         }

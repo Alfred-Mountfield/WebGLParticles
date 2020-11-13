@@ -1,10 +1,12 @@
 ## WebGL Particle System
 
 A particle system implemented in WebGL utilising a Frame-Buffer-Object (FBO) approach for efficient renderering.
-Implementation was heavily inspired by **the** original WebGL FBO system on the web http://barradeau.com/blog/?p=621.
+The project was originally heavily inspired by **the** original WebGL FBO system on the web http://barradeau.com/blog/?p=621 
+however, it has since moved on to utilise Three.js's inbuilt `GPUComputationRenderer` to handle the ping-pong rendering 
+explained below.
 
 The simulation is written with Three.js and utilises a pair of off-screen render-targets and a 'ping-pong' rendering 
-approach to efficiently utilise the GPU for computation.  At each step an appropriate shader is selected on the FBO 
+approach to efficiently utilise the GPU for computation. At each step an appropriate shader is selected on the FBO 
 mesh, and the renderer reads from the texture on one render target, and renders into the other. At the next step the 
 targets are swapped.
 

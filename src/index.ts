@@ -3,7 +3,7 @@ import {start} from "./points/main";
 
 function randomPositions() {
     const [particleBufferWidth, particleBufferHeight] = [512, 512]
-    const maxVal = 1024
+    const maxVal = 50
     const positions = createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
     const bounds = new Float32Array(3)
     bounds[0] = bounds[1] = bounds[2] = 2 * maxVal
@@ -28,7 +28,7 @@ function loadImage(imagePath = 'src/images/noise_4.png') {
 }
 
 // random 3D co-ordinates
-function createRandomPositionsData(width, height, maxVal) {
+function createRandomPositionsData(width: number, height: number, maxVal: number): Float32Array {
     let len = width *  height * 4
     const randomData = new Float32Array(len)
 
@@ -75,8 +75,8 @@ function getPositionsFromGreyScaleImage(canvas, img, width, height, elevation) {
 
 
 if (WEBGL.isWebGLAvailable()) {
-    loadImage()
-    // randomPositions()
+    // loadImage()
+    randomPositions()
 
 } else {
     const warning = WEBGL.getWebGLErrorMessage()
