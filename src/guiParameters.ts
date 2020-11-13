@@ -17,6 +17,7 @@ export const parameters = {
     "Size": "256", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
     "Maximum Value": 100,
     "Render with Triangular Meshes": false,
+    "Triangles Scale": 1,
     "Starting Shape": `${startingShapes.random}` // Drop-down input coerces it to string, so set it to string by default to avoid bugs
 }
 
@@ -47,8 +48,9 @@ export function initGUI(restartSimulation: () => void, resetCamera: () => void) 
         "4096^2 (16,777,216)": 4096,
         "8192^2 (67,108,864)": 8192
     })
-    staticFolder.add(parameters, "Maximum Value", 0, 1000, 5)
+    staticFolder.add(parameters, "Maximum Value", -100, 500, 1)
     staticFolder.add(parameters, "Render with Triangular Meshes")
+    staticFolder.add(parameters, "Triangles Scale", 0.1, 10, 0.1)
     staticFolder.add(parameters, 'Starting Shape', {
         "Random Box": startingShapes.random,
         "Perlin Noise": startingShapes["noise_1.jpg"], // todo update

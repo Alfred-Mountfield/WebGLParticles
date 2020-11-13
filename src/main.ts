@@ -1,4 +1,4 @@
-import { Fog, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
+import {Fog, PerspectiveCamera, Scene, TOUCH, Vector3, WebGLRenderer} from "three"
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import * as points from "./particles/points"
 import * as triangles from "./particles/triangles"
@@ -24,7 +24,7 @@ export function init() {
 
         try {
             // @ts-ignore declaration is missing failIfMajorPerformanceCaveat for some reason
-            renderer = new WebGLRenderer( {antialias: true, failIfMajorPerformanceCaveat: true})
+            renderer = new WebGLRenderer({antialias: true, failIfMajorPerformanceCaveat: true})
         } catch (err) {
             console.error("Appropriate Hardware Requirements weren't met")
             // todo
@@ -87,12 +87,14 @@ export function startFromParams() {
 }
 
 function start(initialPositions: Float32Array, particleBufferWidth: number, particleBufferHeight: number, bounds: Float32Array) {
-    particles = parameters["Render with Triangular Meshes"] ? triangles : points
+    const renderWithTriangles = parameters["Render with Triangular Meshes"]
+    particles = renderWithTriangles ? triangles : points
 
     gpuCompute.init(renderer, particleBufferWidth, particleBufferHeight, initialPositions, bounds)
-    particles.init(particleBufferWidth, particleBufferHeight).then(_ => {
-        particlesLoaded = true
-    })
+    particles.init(particleBufferWidth, particleBufferHeight, renderWithTriangles ? parameters["Triangles Scale"] : undefined)
+        .then(_ => {
+            particlesLoaded = true
+        })
 
     play()
 }
@@ -116,8 +118,8 @@ function play() {
 }
 
 function onLoad() {
-    loading = ( !particlesLoaded )
-    if ( !loading && !sceneReady ) {
+    loading = (!particlesLoaded)
+    if (!loading && !sceneReady) {
         scene.add(particles.mesh)
         sceneReady = true
     }
@@ -127,7 +129,7 @@ function resetCamera() {
     camera.position.copy(new Vector3(50, 150, 250))
 }
 
-function restartSimulation()  {
+function restartSimulation() {
     scene.remove(particles.mesh)
 
     particlesLoaded = false

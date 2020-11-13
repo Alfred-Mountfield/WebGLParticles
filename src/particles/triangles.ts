@@ -4,7 +4,7 @@ import render_frag from "../glsl/common/render.fs.glsl";
 
 let mesh: Mesh, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
-export async function init(width, height, scale=0.1) {
+export async function init(width, height, scale=1) {
     setupShaders()
 
     const triangles = (width * height)  // triangle per particle
@@ -40,7 +40,9 @@ export async function init(width, height, scale=0.1) {
     geometry = new BufferGeometry()
     geometry.setAttribute('position', new BufferAttribute(vertices, 3))
     geometry.setAttribute('reference', new BufferAttribute(references, 2))
-    geometry.scale(scale, scale, scale)
+    geometry.scale(scale / 10, scale / 10, scale / 10)
+
+    geometry.rotateZ(Math.PI * (3/4))
 
     mesh = new Mesh(geometry, renderMaterial)
     mesh.matrixAutoUpdate = false
