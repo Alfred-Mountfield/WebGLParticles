@@ -20,7 +20,7 @@ export function init() {
         stats = new Stats()
         document.body.appendChild(stats.dom)
 
-        initGUI(restartSimulation, resetCamera)
+        initGUI(onChange, restartSimulation, resetCamera)
 
         try {
             // @ts-ignore declaration is missing failIfMajorPerformanceCaveat for some reason
@@ -73,10 +73,10 @@ export function init() {
 export function startFromParams() {
     switch (Number(parameters["Starting Shape"])) {
         case startingShapes.random:
-            const startingPositions = randomPositions(Number(parameters.Size), Number(parameters.Size), parameters["Maximum Value"])
+            const startingPositions = randomPositions(Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), parameters["Maximum Value"])
             const bounds = new Float32Array(3)
             bounds[0] = bounds[1] = bounds[2] = 2 * parameters["Maximum Value"]
-            start(startingPositions, Number(parameters.Size), Number(parameters.Size), bounds)
+            start(startingPositions, Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), bounds)
             break
         default:
             const callback = (pos, width, height, bounds) => start(pos, width, height, bounds)
@@ -87,7 +87,7 @@ export function startFromParams() {
 }
 
 function start(initialPositions: Float32Array, particleBufferWidth: number, particleBufferHeight: number, bounds: Float32Array) {
-    const renderWithTriangles = parameters["Render with Triangular Meshes"]
+    const renderWithTriangles = parameters["Render with Triangles"]
     particles = renderWithTriangles ? triangles : points
 
     gpuCompute.init(renderer, particleBufferWidth, particleBufferHeight, initialPositions, bounds)
@@ -123,6 +123,10 @@ function onLoad() {
         scene.add(particles.mesh)
         sceneReady = true
     }
+}
+
+function onChange() {
+    gpuCompute.updateParameters()
 }
 
 function resetCamera() {

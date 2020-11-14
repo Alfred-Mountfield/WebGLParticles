@@ -11,18 +11,20 @@ export enum startingShapes {
 export const parameters = {
     // dynamically changeable
     "Gravitational Constant": 9.8,
+    "Velocity Scale": 1,
     "Movement": true,
+    "Point Size": 2,
 
     // requires simulation restart
-    "Size": "256", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
+    "Texture Size (Particles)": "256", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
     "Maximum Value": 100,
-    "Render with Triangular Meshes": false,
+    "Render with Triangles": false,
     "Triangles Scale": 1,
     "Starting Shape": `${startingShapes.random}` // Drop-down input coerces it to string, so set it to string by default to avoid bugs
 }
 
 // inspired by https://github.com/mrdoob/three.js/blob/master/examples/webgl_gpgpu_protoplanet.html
-export function initGUI(restartSimulation: () => void, resetCamera: () => void) {
+export function initGUI(onChange: () => void, restartSimulation: () => void, resetCamera: () => void) {
     const gui = new GUI({width: 300})
 
     const resetCameraButton = {
@@ -33,10 +35,12 @@ export function initGUI(restartSimulation: () => void, resetCamera: () => void) 
 
     const dynamicFolder = gui.addFolder("Dynamic Parameters")
     dynamicFolder.add(parameters, "Gravitational Constant", 0, 50, 0.25).onChange(onChange)
+    dynamicFolder.add(parameters, "Velocity Scale", 0.1, 10, 0.1).onChange(onChange)
     dynamicFolder.add(parameters, "Movement").onChange(onChange)
+    dynamicFolder.add(parameters, "Point Size", 1, 10, 1).onChange(onChange)
 
     const staticFolder = gui.addFolder("Static Parameters (Requires Simulation Restart)")
-    staticFolder.add(parameters, "Size", {
+    staticFolder.add(parameters, "Texture Size (Particles)", {
         "1": 1,
         "4": 2,
         "16": 4,
@@ -49,7 +53,7 @@ export function initGUI(restartSimulation: () => void, resetCamera: () => void) 
         "8192^2 (67,108,864)": 8192
     })
     staticFolder.add(parameters, "Maximum Value", -100, 500, 1)
-    staticFolder.add(parameters, "Render with Triangular Meshes")
+    staticFolder.add(parameters, "Render with Triangles")
     staticFolder.add(parameters, "Triangles Scale", 0.1, 10, 0.1)
     staticFolder.add(parameters, 'Starting Shape', {
         "Random Box": startingShapes.random,

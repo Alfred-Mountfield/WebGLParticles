@@ -1,13 +1,17 @@
 import {GPUComputationRenderer, Variable} from "three/examples/jsm/misc/GPUComputationRenderer"
 import {DataTexture, HalfFloatType, RepeatWrapping, Texture, WebGLRenderer, WebGLRenderTarget} from "three"
 
-import sim_frag from "./glsl/points/sim.static.fs.glsl"
-// import sim_frag from "./glsl/points/sim.moving.random.fs.glsl"
+import sim_static_frag from "./glsl/sim/sim.position.fs.glsl"
+import sim_gravity_frag from "./glsl/sim/sim.velocity.fs.glsl"
+import {parameters} from "./guiParameters";
 
-let gpuCompute: GPUComputationRenderer, dtPosition: Texture, positionVariable: Variable, positionUniforms
+let gpuCompute: GPUComputationRenderer,
+    dtPosition: Texture, dtInitialPosition: Texture, dtVelocity: Texture,
+    positionVariable: Variable, velocityVariable:Variable,
+    positionUniforms, velocityUniforms
 let time = 0
 
-export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, initialPositions, bounds) {
+export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, initialPositions: Float32Array, bounds) {
     gpuCompute = new GPUComputationRenderer(bufferWidth, bufferHeight, webGLRenderer)
 
     if (isSafari()) {
@@ -15,28 +19,37 @@ export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, in
     }
 
     dtPosition = gpuCompute.createTexture()
-    // const dtVelocity = gpuCompute.createTexture()
+    dtInitialPosition = gpuCompute.createTexture()
+    dtVelocity = gpuCompute.createTexture()
 
     fillTextures(dtPosition, initialPositions)
+    fillTextures(dtInitialPosition, initialPositions)
 
-    // const velocityVariable = gpuCompute.addVariable("textureVelocity", )
-    positionVariable = gpuCompute.addVariable("texturePosition", sim_frag, dtPosition)
-
+    positionVariable = gpuCompute.addVariable("texturePosition", sim_static_frag, dtPosition)
     positionVariable.wrapS = RepeatWrapping
     positionVariable.wrapT = RepeatWrapping
 
-    const randomVals = new Float32Array(bufferWidth * bufferHeight)
+    positionUniforms = positionVariable.material.uniforms
+    positionUniforms["initialPositions"] = {value: dtInitialPosition}
+    positionUniforms["velocityScale"] = {value: parameters["Velocity Scale"]}
+    positionUniforms["time"] = {value: time}
+    positionUniforms["bounds"] = {value: bounds}
+    positionUniforms["move"] = {value: parameters["Movement"]}
+
+    velocityVariable = gpuCompute.addVariable("textureVelocity", sim_gravity_frag, dtVelocity)
+    velocityVariable.wrapS = RepeatWrapping
+    velocityVariable.wrapT = RepeatWrapping
+
+    const randomVals = new Float32Array(bufferWidth * bufferHeight) // give each particle a random seed
     for (let i = 0; i < bufferWidth * bufferHeight; i++) {
         randomVals[i] = Math.random() - 0.5
     }
 
-    positionUniforms = positionVariable.material.uniforms
-    positionUniforms["textureInitialPosition"] = {value: initialPositions}
-    positionUniforms["time"] = {value: time}
-    positionUniforms["bounds"] = {value: bounds}
-    positionUniforms["random"] = {value: randomVals}
+    velocityUniforms = velocityVariable.material.uniforms
+    velocityUniforms["random"] = {value: randomVals}
 
-    gpuCompute.setVariableDependencies( positionVariable, [ positionVariable ] )
+    gpuCompute.setVariableDependencies( positionVariable, [ positionVariable, velocityVariable ] )
+    gpuCompute.setVariableDependencies( velocityVariable, [ positionVariable, velocityVariable ] )
 
     const error = gpuCompute.init()
     if (error !== null) {
@@ -51,6 +64,11 @@ export function update() {
     time += 1
     positionUniforms["time"] = {value: time}
     gpuCompute.compute()
+}
+
+export function updateParameters() {
+    positionUniforms["velocityScale"] = {value: parameters["Velocity Scale"]}
+    positionUniforms["move"] = {value: parameters["Movement"]}
 }
 
 export function dispose() {

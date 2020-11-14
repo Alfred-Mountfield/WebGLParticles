@@ -1,6 +1,6 @@
 import {BufferAttribute, BufferGeometry, DoubleSide, Mesh, ShaderMaterial, Texture,} from "three";
-import render_vertex from "../glsl/triangles/render.vs.glsl";
-import render_frag from "../glsl/common/render.fs.glsl";
+import render_vertex from "../glsl/render/triangles.vs.glsl";
+import render_frag from "../glsl/render/fs.glsl";
 
 let mesh: Mesh, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
