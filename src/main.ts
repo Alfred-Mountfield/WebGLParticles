@@ -6,7 +6,7 @@ import * as gpuCompute from "./gpuCompute"
 import * as Stats from 'stats.js'
 import {WEBGL} from "three/examples/jsm/WebGL";
 import {parameters, initGUI, startingShapes} from "./guiParameters";
-import {loadImage, nonRandomPositions, randomPositions} from "./startingPositions";
+import {loadImage, randomPositions} from "./startingPositions";
 
 let particles: typeof points | typeof triangles
 let stats
@@ -77,12 +77,6 @@ export function startFromParams() {
             const randomBounds = new Float32Array(3)
             randomBounds[0] = randomBounds[1] = randomBounds[2] = 2 * parameters["Maximum Value"]
             start(randomStartingPositions, Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), randomBounds)
-            break
-        case startingShapes.nonRandom:
-            const nonRandomStartingPositions = nonRandomPositions(Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), parameters["Maximum Value"])
-            const nonRandomBounds = new Float32Array(3)
-            nonRandomBounds[0] = nonRandomBounds[1] = nonRandomBounds[2] = 2 * parameters["Maximum Value"]
-            start(nonRandomStartingPositions, Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), nonRandomBounds)
             break
         default:
             const callback = (pos, width, height, bounds) => start(pos, width, height, bounds)

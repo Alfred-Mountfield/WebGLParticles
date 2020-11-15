@@ -10,9 +10,13 @@ export enum startingShapes {
 
 export enum simulations {
     "gravity",
-    "lorenzAttractor",
     "aizawaAttractor",
+    "dadrasAttractor",
+    "dequanAttractor",
+    "lorenzAttractor",
+    "lorenzModTwoAttractor",
     "thomasAttractor",
+    "threeScrollAttractor",
 }
 
 export const parameters = {
@@ -36,7 +40,7 @@ export const parameters = {
 
 // inspired by https://github.com/mrdoob/three.js/blob/master/examples/webgl_gpgpu_protoplanet.html
 export function initGUI(onChange: () => void, restartSimulation: () => void, resetCamera: () => void) {
-    const gui = new GUI({width: 300})
+    const gui = new GUI({width: 400})
 
     const resetCameraButton = {
         "Reset Camera": () => resetCamera()
@@ -49,16 +53,20 @@ export function initGUI(onChange: () => void, restartSimulation: () => void, res
     dynamicFolder.add(parameters, "Time Step", 0.01, 1, 0.001).onChange(onChange)
     dynamicFolder.add(parameters, "Movement").onChange(onChange)
     dynamicFolder.add(parameters, "Point Size", 1.0, 10.0, 1).onChange(onChange)
-    dynamicFolder.add(parameters, "Boundary Scale", 0.1, 20.0, 0.1).onChange(onChange)
+    dynamicFolder.add(parameters, "Boundary Scale", 0.1, 200.0, 0.1).onChange(onChange)
     dynamicFolder.add(parameters, "Particle Time to Live", 0, 60*20, 5).onChange(onChange)
     dynamicFolder.add(parameters, "Random New Particles").onChange(onChange)
 
     const staticFolder = gui.addFolder("Static Parameters (Requires Simulation Restart)")
     staticFolder.add(parameters,"Simulation Type", {
         "Gravity": simulations.gravity,
-        "Lorenz Attractor": simulations.lorenzAttractor,
         "Aizawa Attractor": simulations.aizawaAttractor,
+        "Dadras Attractor": simulations.dadrasAttractor,
+        "Dequan Attractor": simulations.dequanAttractor,
+        "Lorenz Attractor": simulations.lorenzAttractor,
+        "Lorenz Mod Two Attractor": simulations.lorenzModTwoAttractor,
         "Thomas Attractor": simulations.thomasAttractor,
+        "Three Scroll Unified Chaotic System Attractor": simulations.threeScrollAttractor,
     })
     staticFolder.add(parameters, "Texture Size (Particles)", {
         "1": 1,

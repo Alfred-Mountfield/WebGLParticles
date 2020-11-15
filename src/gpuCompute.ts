@@ -3,10 +3,16 @@ import {DataTexture, HalfFloatType, RepeatWrapping, Texture, WebGLRenderer, WebG
 
 import {parameters, simulations} from "./guiParameters";
 import positionSimFragShader from "./glsl/sim/sim.position.fs.glsl"
+
 import gravitySimFragShader from "./glsl/sim/sim.gravity.fs.glsl"
-import lorenzAttractorSimFragShader from "./glsl/sim/sim.lorenzAttractor.fs.glsl"
-import aizawaAttractorSimFragShader from "./glsl/sim/sim.aizawaAttractor.fs.glsl"
-import thomasAttractorSimFragShader from "./glsl/sim/sim.thomasAttractor.fs.glsl"
+
+import aizawaAttractorSimFragShader from "./glsl/sim/sim.attractor.aizawa.fs.glsl"
+import dadrasAttractorSimFragShader from "./glsl/sim/sim.attractor.dadras.fs.glsl"
+import dequanAttractorSimFragShader from "./glsl/sim/sim.attractor.dequan.fs.glsl"
+import lorenzAttractorSimFragShader from "./glsl/sim/sim.attractor.lorenz.fs.glsl"
+import lorenzeModTwoAttractorSimFragShader from "./glsl/sim/sim.attractor.lorenzModTwo.fs.glsl"
+import thomasAttractorSimFragShader from "./glsl/sim/sim.attractor.thomas.fs.glsl"
+import threeScrollAttractorSimFragShader from "./glsl/sim/sim.attractor.threeScroll.fs.glsl"
 
 let gpuCompute: GPUComputationRenderer,
     dtPosition: Texture, dtInitialPosition: Texture, dtVelocity: Texture,
@@ -121,12 +127,28 @@ function getVelocityShader() {
     switch(parameters["Simulation Type"]) {
         case `${simulations.gravity}`:
             return gravitySimFragShader
-        case `${simulations.lorenzAttractor}`:
-            return lorenzAttractorSimFragShader
+
         case `${simulations.aizawaAttractor}`:
             return aizawaAttractorSimFragShader
+
+        case `${simulations.dadrasAttractor}`:
+            return dadrasAttractorSimFragShader
+
+        case `${simulations.dequanAttractor}`:
+            return dequanAttractorSimFragShader
+
+        case `${simulations.lorenzAttractor}`:
+            return lorenzAttractorSimFragShader
+
+        case `${simulations.lorenzModTwoAttractor}`:
+            return lorenzeModTwoAttractorSimFragShader
+
         case `${simulations.thomasAttractor}`:
             return thomasAttractorSimFragShader
+
+        case `${simulations.threeScrollAttractor}`:
+            return threeScrollAttractorSimFragShader
+
         default:
             throw Error("Unknown Simulation Type")
     }

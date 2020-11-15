@@ -18,17 +18,17 @@ void main() {
     vec3 pos = tmpPos;
     float life = tmpLife + 1.0;
 
-    pos += velocity;
-//    pos = mix(pos, pos+velocity, 0.5)
+//    pos += velocity;
+    pos = mix(pos, pos+velocity, 0.5);
 
     if (any(greaterThan(abs(pos), bounds * boundaryScale)) || timeToLive > 0.0 && life > timeToLive) {
         if (respawnRandom == true) {
-            pos = vec3(cnoise(vec2(pos.z + simTime, 1)), cnoise(vec2(pos.x + simTime, 1)), cnoise(vec2(pos.y + simTime, 1)) + 1.0) * bounds;
+            pos = vec3(cnoise(vec2(pos.z + simTime, 1)), cnoise(vec2(pos.x + simTime, 1)), cnoise(vec2(pos.y + simTime, 1))) * bounds;
         } else {
             pos = initialPos;
         }
 
-        life = cnoise(vec2(life + simTime, 100));
+        life = cnoise(vec2(life + simTime, 100)) * timeToLive;
     }
 
 
