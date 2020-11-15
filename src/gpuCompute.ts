@@ -1,42 +1,59 @@
 import {GPUComputationRenderer, Variable} from "three/examples/jsm/misc/GPUComputationRenderer"
 import {DataTexture, HalfFloatType, RepeatWrapping, Texture, WebGLRenderer, WebGLRenderTarget} from "three"
 
-import sim_static_frag from "./glsl/sim/sim.position.fs.glsl"
-import sim_gravity_frag from "./glsl/sim/sim.velocity.fs.glsl"
-import {parameters} from "./guiParameters";
+import {parameters, simulations} from "./guiParameters";
+import positionSimFragShader from "./glsl/sim/sim.position.fs.glsl"
+import gravitySimFragShader from "./glsl/sim/sim.gravity.fs.glsl"
+import lorenzAttractorSimFragShader from "./glsl/sim/sim.lorenzAttractor.fs.glsl"
+import aizawaAttractorSimFragShader from "./glsl/sim/sim.aizawaAttractor.fs.glsl"
 
 let gpuCompute: GPUComputationRenderer,
     dtPosition: Texture, dtInitialPosition: Texture, dtVelocity: Texture,
     positionVariable: Variable, velocityVariable:Variable,
     positionUniforms, velocityUniforms
-let time = 0
+let simTime = 0
 
 export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, initialPositions: Float32Array, bounds) {
+    let velocityShader = undefined
+    switch(parameters["Simulation Type"]) {
+        case `${simulations.gravity}`:
+            velocityShader = gravitySimFragShader
+            break
+        case `${simulations.lorenzAttractor}`:
+            velocityShader = lorenzAttractorSimFragShader
+            break
+        case `${simulations.aizawaAttractor}`:
+            velocityShader = aizawaAttractorSimFragShader
+            break
+        default:
+            throw Error("Unknown Simulation Type")
+    }
+
     gpuCompute = new GPUComputationRenderer(bufferWidth, bufferHeight, webGLRenderer)
 
     if (isSafari()) {
         gpuCompute.setDataType(HalfFloatType)
     }
 
-    dtPosition = gpuCompute.createTexture()
+    dtPosition = gpuCompute.createTexture() // (x,y,z) pos + (w) time of life of particle
     dtInitialPosition = gpuCompute.createTexture()
     dtVelocity = gpuCompute.createTexture()
 
-    fillTextures(dtPosition, initialPositions)
-    fillTextures(dtInitialPosition, initialPositions)
+    fillPositionTextures(dtPosition, initialPositions)
+    fillPositionTextures(dtInitialPosition, initialPositions)
 
-    positionVariable = gpuCompute.addVariable("texturePosition", sim_static_frag, dtPosition)
+    positionVariable = gpuCompute.addVariable("texturePosition", positionSimFragShader, dtPosition)
     positionVariable.wrapS = RepeatWrapping
     positionVariable.wrapT = RepeatWrapping
 
     positionUniforms = positionVariable.material.uniforms
     positionUniforms["initialPositions"] = {value: dtInitialPosition}
+    // positionUniforms["simTime"] = {value: simTime}
     positionUniforms["velocityScale"] = {value: parameters["Velocity Scale"]}
-    positionUniforms["time"] = {value: time}
     positionUniforms["bounds"] = {value: bounds}
-    positionUniforms["move"] = {value: parameters["Movement"]}
+    positionUniforms["boundaryScale"] = {value: parameters["Boundary Scale"]}
 
-    velocityVariable = gpuCompute.addVariable("textureVelocity", sim_gravity_frag, dtVelocity)
+    velocityVariable = gpuCompute.addVariable("textureVelocity", velocityShader, dtVelocity)
     velocityVariable.wrapS = RepeatWrapping
     velocityVariable.wrapT = RepeatWrapping
 
@@ -55,36 +72,52 @@ export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, in
     if (error !== null) {
         console.error( error )
     }
+
+    gpuCompute.compute()
 }
 
 // @ts-ignore
 export const getPositionTexture = () => gpuCompute.getCurrentRenderTarget(positionVariable).texture
 
 export function update() {
-    time += 1
-    positionUniforms["time"] = {value: time}
-    gpuCompute.compute()
+    if (parameters["Movement"]) {
+        simTime += 1
+
+        // positionUniforms["simTime"] = {value: simTime}
+
+        gpuCompute.compute()
+    }
 }
 
 export function updateParameters() {
     positionUniforms["velocityScale"] = {value: parameters["Velocity Scale"]}
-    positionUniforms["move"] = {value: parameters["Movement"]}
+    positionUniforms["boundaryScale"] = {value: parameters["Boundary Scale"]}
 }
 
 export function dispose() {
+    simTime = 0
     positionVariable.renderTargets.forEach((rt: WebGLRenderTarget) => {
         rt.texture.dispose()
         rt.dispose()
     })
+    velocityVariable.renderTargets.forEach((rt: WebGLRenderTarget) => {
+        rt.texture.dispose()
+        rt.dispose()
+    })
     dtPosition.dispose()
+    dtVelocity.dispose()
 }
 
-function fillTextures(dtPosition: DataTexture, initialPositions: Float32Array) {
+function fillPositionTextures(dtPosition: DataTexture, initialPositions: Float32Array) {
     const posArray = dtPosition.image.data
     if (posArray.length !== dtPosition.image.data.length) throw Error("Starting Positions array is malformed")
 
     for (let i = 0; i < posArray.length; i++) {
-        posArray[i] = initialPositions[i]
+        if ((i + 1) % 4) {
+            posArray[i] = initialPositions[i]
+        } else {
+            posArray[i] = 0
+        }
     }
 
 }

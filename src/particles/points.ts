@@ -8,6 +8,7 @@ import {
 } from "three";
 import render_vertex from "../glsl/render/points.vs.glsl";
 import render_frag from "../glsl/render/fs.glsl";
+import {parameters} from "../guiParameters";
 
 let mesh: Points, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
@@ -33,6 +34,10 @@ export function update(newPositions: Texture) {
     mesh.material.uniforms.texturePosition.value = newPositions
 }
 
+export function updateParameters() {
+    renderMaterial.uniforms["pointSize"] = {value: parameters["Point Size"] * 1.0}
+}
+
 export function dispose() {
     geometry.dispose()
     renderMaterial.dispose()
@@ -43,6 +48,9 @@ function setupShaders() {
         uniforms: {
             texturePosition: {
                 value: null,
+            },
+            pointSize: {
+                value: parameters["Point Size"] * 1.0
             }
         },
         vertexShader: render_vertex,

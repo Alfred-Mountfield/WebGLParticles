@@ -1,25 +1,26 @@
 uniform sampler2D initialPositions;
 uniform float velocityScale;
-uniform float time;
 uniform vec3 bounds;
-uniform bool move;
+uniform float boundaryScale;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
-    vec3 pos = texture2D(texturePosition, uv).xyz;
-    vec3 position = pos;
+    vec3 tmpPos = texture2D(texturePosition, uv).xyz;
+    vec3 initialPos = texture2D(initialPositions, uv).xyz;
+    vec3 velocity = texture2D(textureVelocity, uv).xyz;
+    float tmpLife = texture2D(texturePosition, uv).w;
 
-    if (move) {
-        vec3 initialPos = texture2D(initialPositions, uv).xyz;
-        vec3 velocity = texture2D(textureVelocity, uv).xyz;
+    vec3 pos = tmpPos;
+    float life = tmpLife + 1.0;
 
-        position += velocity * velocityScale;
-        if (any(greaterThan(abs(position), bounds))) {
-            position = initialPos;
-        }
+    pos += velocity * velocityScale;
+    if (any(greaterThan(abs(pos), bounds * boundaryScale))) {
+        pos = initialPos;
+        life = 0.0;
     }
 
-    gl_FragColor = vec4(position, 1.0);
+
+    gl_FragColor = vec4(pos, life);
 }
 

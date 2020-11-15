@@ -1,6 +1,7 @@
 import {BufferAttribute, BufferGeometry, DoubleSide, Mesh, ShaderMaterial, Texture,} from "three";
 import render_vertex from "../glsl/render/triangles.vs.glsl";
 import render_frag from "../glsl/render/fs.glsl";
+import {parameters} from "../guiParameters";
 
 let mesh: Mesh, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
@@ -52,6 +53,9 @@ export async function init(width, height, scale=1) {
 export function update(newPositions: Texture) {
     // @ts-ignore
     mesh.material.uniforms.texturePosition.value = newPositions
+}
+
+export function updateParameters() {
 }
 
 export function dispose() {

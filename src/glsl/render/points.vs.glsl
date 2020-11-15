@@ -2,6 +2,7 @@
 
 //float texture containing the positions of each particle
 uniform sampler2D positions;
+uniform float pointSize;
 
 void main() {
 
@@ -11,6 +12,6 @@ void main() {
     //pos now contains the position of a point in space taht can be transformed
     gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 
-    gl_PointSize = 1.0;
+    gl_PointSize = pointSize;
 }
 

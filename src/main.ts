@@ -48,7 +48,7 @@ export function init() {
         scene = new Scene()
         scene.fog = new Fog('#1E272C', 0.0016)
 
-        camera = new PerspectiveCamera(60, width / height, 0.1, 100_000)
+        camera = new PerspectiveCamera(60, width / height, 0.00001, 100_000_000)
         camera.position.copy(new Vector3(50, 150, 250))
 
         const controls = new OrbitControls(camera, renderer.domElement)
@@ -127,10 +127,12 @@ function onLoad() {
 
 function onChange() {
     gpuCompute.updateParameters()
+    particles.updateParameters()
 }
 
 function resetCamera() {
     camera.position.copy(new Vector3(50, 150, 250))
+    camera.lookAt(0, 0, 0)
 }
 
 function restartSimulation() {
