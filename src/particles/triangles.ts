@@ -2,6 +2,7 @@ import {BufferAttribute, BufferGeometry, DoubleSide, Mesh, ShaderMaterial, Textu
 import render_vertex from "../glsl/render/triangles.vs.glsl";
 import render_frag from "../glsl/render/fs.glsl";
 import {parameters} from "../guiParameters";
+import {addFragmentUniforms} from "./shared";
 
 let mesh: Mesh, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
@@ -74,13 +75,8 @@ function setupShaders() {
         vertexShader: render_vertex,
         fragmentShader: render_frag,
         side: DoubleSide,
-        // blending: AdditiveBlending,
-        // transparent: true,
-        // fog: false,
-        // lights: false,
-        // depthWrite: false,
-        // depthTest: false
     })
+    addFragmentUniforms(renderMaterial)
 }
 
 export {mesh}

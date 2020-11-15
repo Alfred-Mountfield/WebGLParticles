@@ -21,21 +21,21 @@ export enum simulations {
 
 export const parameters = {
     // dynamically changeable
-    "Time Step": 0.02,
+    "Time Step": 0.1,
     "Normalize Factor": 0.0,
     "Movement": false,
     "Point Size": 2.0,
     "Boundary Scale": 3.0,
-    "Particle Time to Live": 0.0,
-    "Random New Particles": false,
+    "Particle Time to Live": 1200.0,
+    "Random New Particles": true,
 
     // requires simulation restart
-    "Simulation Type": `${simulations.gravity}`,
-    "Texture Size (Particles)": "256", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
-    "Maximum Value": 8,
+    "Simulation Type": `${simulations.thomasAttractor}`,
+    "Texture Size (Particles)": "512", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
+    "Maximum Value": 7,
     "Render with Triangles": false,
     "Triangles Scale": 1,
-    "Starting Shape": `${startingShapes.random}` // Drop-down input coerces it to string, so set it to string by default to avoid bugs
+    "Starting Shape": `${startingShapes["noise_4.png"]}` // Drop-down input coerces it to string, so set it to string by default to avoid bugs
 }
 
 // inspired by https://github.com/mrdoob/three.js/blob/master/examples/webgl_gpgpu_protoplanet.html
@@ -51,10 +51,10 @@ export function initGUI(onChange: () => void, restartSimulation: () => void, res
     const dynamicFolder = gui.addFolder("Dynamic Parameters")
     dynamicFolder.add(parameters, "Normalize Factor", 0.0, 1, 0.01).onChange(onChange)
     dynamicFolder.add(parameters, "Time Step", 0.01, 1, 0.001).onChange(onChange)
-    dynamicFolder.add(parameters, "Movement").onChange(onChange)
+    dynamicFolder.add(parameters, "Movement").onChange(onChange).listen()
     dynamicFolder.add(parameters, "Point Size", 1.0, 10.0, 1).onChange(onChange)
     dynamicFolder.add(parameters, "Boundary Scale", 0.1, 200.0, 0.1).onChange(onChange)
-    dynamicFolder.add(parameters, "Particle Time to Live", 0, 60*20, 5).onChange(onChange)
+    dynamicFolder.add(parameters, "Particle Time to Live", 0, 60*30, 5).onChange(onChange)
     dynamicFolder.add(parameters, "Random New Particles").onChange(onChange)
 
     const staticFolder = gui.addFolder("Static Parameters (Requires Simulation Restart)")

@@ -9,6 +9,7 @@ import {
 import render_vertex from "../glsl/render/points.vs.glsl";
 import render_frag from "../glsl/render/fs.glsl";
 import {parameters} from "../guiParameters";
+import {addFragmentUniforms} from "./shared";
 
 let mesh: Points, renderMaterial: ShaderMaterial, geometry: BufferGeometry
 
@@ -62,6 +63,7 @@ function setupShaders() {
         depthWrite: false,
         depthTest: false
     })
+    addFragmentUniforms(renderMaterial)
 }
 
 export {mesh}

@@ -5,7 +5,7 @@ import * as triangles from "./particles/triangles"
 import * as gpuCompute from "./gpuCompute"
 import * as Stats from 'stats.js'
 import {WEBGL} from "three/examples/jsm/WebGL";
-import {parameters, initGUI, startingShapes} from "./guiParameters";
+import {initGUI, parameters, startingShapes} from "./guiParameters";
 import {loadImage, randomPositions} from "./startingPositions";
 
 let particles: typeof points | typeof triangles
@@ -53,11 +53,11 @@ export function init() {
 
         const controls = new OrbitControls(camera, renderer.domElement)
         // TODO tweak
-        controls.enablePan = false
+        controls.enablePan = true
         controls.rotateSpeed = 0.5
         controls.enableDamping = true
-        controls.dampingFactor = 0.04
-        controls.touches = {ONE: undefined, TWO: TOUCH.DOLLY_ROTATE}
+        controls.dampingFactor = 0.9
+        controls.touches = {ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN}
         controls.update()
 
         startFromParams()
@@ -95,6 +95,11 @@ function start(initialPositions: Float32Array, particleBufferWidth: number, part
         .then(_ => {
             particlesLoaded = true
         })
+
+    setTimeout(() => {
+        parameters["Movement"] = true
+        onChange()
+    }, 2000)
 
     play()
 }

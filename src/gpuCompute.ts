@@ -117,7 +117,7 @@ function fillPositionTextures(dtPosition: DataTexture, initialPositions: Float32
         if ((i + 1) % 4) {
             posArray[i] = initialPositions[i]
         } else {
-            posArray[i] = Math.random() * 1000
+            posArray[i] = Math.random() * 800 // Set a random time lived
         }
     }
 
