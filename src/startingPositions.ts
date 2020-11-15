@@ -1,5 +1,13 @@
-export function randomPositions(particleBufferWidth, particleBufferHeight, maxVal=20) {
-    return createRandomPositionsData(particleBufferWidth, particleBufferHeight, maxVal)
+// random 3D co-ordinates
+export function randomPositions(width: number, height: number, maxVal: number): Float32Array {
+    let len = width *  height * 4
+    const randomData = new Float32Array(len)
+
+    while (len--) {
+        randomData[len] = (Math.random() * 2 - 1) * maxVal
+    }
+
+    return randomData
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
@@ -16,18 +24,6 @@ export function loadImage(imagePath = 'src/textures/noise_4.png', maxVal, callba
         callback(positions, width, height, bounds)
     }
     img.src = imagePath
-}
-
-// random 3D co-ordinates
-function createRandomPositionsData(width: number, height: number, maxVal: number): Float32Array {
-    let len = width *  height * 4
-    const randomData = new Float32Array(len)
-
-    while (len--) {
-        randomData[len] = (Math.random() * 2 - 1) * maxVal
-    }
-
-    return randomData
 }
 
 function getCanvas(w, h) {
@@ -56,7 +52,7 @@ function getPositionsFromGreyScaleImage(canvas, img, width, height, elevation) {
     for (let i = 0; i < l; i++) {
         const i4 = i * 4
         positions[i4] = ((i % width) - width * .5)
-        positions[i4 + 1]  = ( data[i4] / 0xFF * 0.299 +data[i4+1]/0xFF * 0.587 + data[i4+2] / 0xFF * 0.114 ) * elevation
+        positions[i4 + 1]  = ( data[i4] / 0xFF * 0.299 +data[i4+1]/0xFF * 0.587 + data[i4+2] / 0xFF * 0.114 ) * elevation * 10
         positions[i4 + 2]  = ( ( i / width ) - height * .5 )
         positions[i4 + 3] = 0
     }

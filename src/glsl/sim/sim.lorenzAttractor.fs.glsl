@@ -1,7 +1,8 @@
 // inspired from https://fusefactory.github.io/openfuse/strange%20attractors/particle%20system/Strange-Attractors-GPU/
 
+uniform float normalizeFactor;
 uniform sampler2D random;
-uniform bool move;
+uniform float timestep;
 
 // Lorenz Attractor parameters
 float a = 10.0;
@@ -24,11 +25,12 @@ void main() {
     float y = pos.y;
     float z = pos.z;
 
-    float dx = (a * (y - x))   * life;
-    float dy = (x * (b-z) - y) * life;
-    float dz = (x*y - c*z)     * life;
+    float dx = (a * (y - x));
+    float dy = (x * (b-z) - y);
+    float dz = (x*y - c*z);
 
-    velocity = vec3(dx, dy, dz) * 0.00001;
+    velocity = vec3(dx, dy, dz) * timestep * 0.1;
+    velocity = mix(velocity, normalize(velocity), normalizeFactor);
 
     gl_FragColor = vec4(velocity, 1.0);
 }

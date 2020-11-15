@@ -6,6 +6,7 @@ import positionSimFragShader from "./glsl/sim/sim.position.fs.glsl"
 import gravitySimFragShader from "./glsl/sim/sim.gravity.fs.glsl"
 import lorenzAttractorSimFragShader from "./glsl/sim/sim.lorenzAttractor.fs.glsl"
 import aizawaAttractorSimFragShader from "./glsl/sim/sim.aizawaAttractor.fs.glsl"
+import thomasAttractorSimFragShader from "./glsl/sim/sim.thomasAttractor.fs.glsl"
 
 let gpuCompute: GPUComputationRenderer,
     dtPosition: Texture, dtInitialPosition: Texture, dtVelocity: Texture,
@@ -14,20 +15,7 @@ let gpuCompute: GPUComputationRenderer,
 let simTime = 0
 
 export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, initialPositions: Float32Array, bounds) {
-    let velocityShader = undefined
-    switch(parameters["Simulation Type"]) {
-        case `${simulations.gravity}`:
-            velocityShader = gravitySimFragShader
-            break
-        case `${simulations.lorenzAttractor}`:
-            velocityShader = lorenzAttractorSimFragShader
-            break
-        case `${simulations.aizawaAttractor}`:
-            velocityShader = aizawaAttractorSimFragShader
-            break
-        default:
-            throw Error("Unknown Simulation Type")
-    }
+    let velocityShader = getVelocityShader()
 
     gpuCompute = new GPUComputationRenderer(bufferWidth, bufferHeight, webGLRenderer)
 
@@ -48,8 +36,9 @@ export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, in
 
     positionUniforms = positionVariable.material.uniforms
     positionUniforms["initialPositions"] = {value: dtInitialPosition}
-    // positionUniforms["simTime"] = {value: simTime}
-    positionUniforms["velocityScale"] = {value: parameters["Velocity Scale"]}
+    positionUniforms["timeToLive"] = {value: parameters["Particle Time to Live"]}
+    positionUniforms["respawnRandom"] = {value: parameters["Random New Particles"]}
+    positionUniforms["simTime"] = {value: simTime}
     positionUniforms["bounds"] = {value: bounds}
     positionUniforms["boundaryScale"] = {value: parameters["Boundary Scale"]}
 
@@ -64,9 +53,11 @@ export function init(webGLRenderer: WebGLRenderer, bufferWidth, bufferHeight, in
 
     velocityUniforms = velocityVariable.material.uniforms
     velocityUniforms["random"] = {value: randomVals}
+    velocityUniforms["timestep"] = {value: parameters["Time Step"]}
+    velocityUniforms["normalizeFactor"] = {value: parameters["Normalize Factor"]}
 
     gpuCompute.setVariableDependencies( positionVariable, [ positionVariable, velocityVariable ] )
-    gpuCompute.setVariableDependencies( velocityVariable, [ positionVariable, velocityVariable ] )
+    gpuCompute.setVariableDependencies( velocityVariable, [ velocityVariable, positionVariable ] )
 
     const error = gpuCompute.init()
     if (error !== null) {
@@ -83,15 +74,19 @@ export function update() {
     if (parameters["Movement"]) {
         simTime += 1
 
-        // positionUniforms["simTime"] = {value: simTime}
+        positionUniforms["simTime"] = {value: simTime}
 
         gpuCompute.compute()
     }
 }
 
 export function updateParameters() {
-    positionUniforms["velocityScale"] = {value: parameters["Velocity Scale"]}
+    positionUniforms["timeToLive"] = {value: parameters["Particle Time to Live"]}
+    positionUniforms["respawnRandom"] = {value: parameters["Random New Particles"]}
     positionUniforms["boundaryScale"] = {value: parameters["Boundary Scale"]}
+
+    velocityUniforms["timestep"] = {value: parameters["Time Step"]}
+    velocityUniforms["normalizeFactor"] = {value: parameters["Normalize Factor"]}
 }
 
 export function dispose() {
@@ -116,10 +111,25 @@ function fillPositionTextures(dtPosition: DataTexture, initialPositions: Float32
         if ((i + 1) % 4) {
             posArray[i] = initialPositions[i]
         } else {
-            posArray[i] = 0
+            posArray[i] = Math.random() * 1000
         }
     }
 
+}
+
+function getVelocityShader() {
+    switch(parameters["Simulation Type"]) {
+        case `${simulations.gravity}`:
+            return gravitySimFragShader
+        case `${simulations.lorenzAttractor}`:
+            return lorenzAttractorSimFragShader
+        case `${simulations.aizawaAttractor}`:
+            return aizawaAttractorSimFragShader
+        case `${simulations.thomasAttractor}`:
+            return thomasAttractorSimFragShader
+        default:
+            throw Error("Unknown Simulation Type")
+    }
 }
 
 function isSafari() {
