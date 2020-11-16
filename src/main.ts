@@ -60,6 +60,11 @@ export function init() {
         controls.touches = {ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN}
         controls.update()
 
+        setTimeout(() => {
+            parameters["Movement"] = true
+            onChange()
+        }, 2000)
+
         startFromParams()
 
 
@@ -71,16 +76,19 @@ export function init() {
 }
 
 export function startFromParams() {
+    const bufferWidth = Number(parameters["Texture Size (Particles)"])
+    const bufferHeight = Number(parameters["Texture Size (Particles)"])
     switch (Number(parameters["Starting Shape"])) {
         case startingShapes.random:
-            const randomStartingPositions = randomPositions(Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), parameters["Maximum Value"])
+            const randomStartingPositions = randomPositions(bufferWidth, bufferHeight, parameters["Maximum Value"])
             const randomBounds = new Float32Array(3)
             randomBounds[0] = randomBounds[1] = randomBounds[2] = 2 * parameters["Maximum Value"]
             start(randomStartingPositions, Number(parameters["Texture Size (Particles)"]), Number(parameters["Texture Size (Particles)"]), randomBounds)
             break
         default:
+            const imgPath = `src/textures/${startingShapes[parameters["Starting Shape"]]}`
             const callback = (pos, width, height, bounds) => start(pos, width, height, bounds)
-            loadImage(`src/textures/${startingShapes[parameters["Starting Shape"]]}`, parameters["Maximum Value"], callback)
+            loadImage(imgPath, bufferWidth, bufferHeight, parameters["Maximum Value"], callback)
             break
     }
 
@@ -95,11 +103,6 @@ function start(initialPositions: Float32Array, particleBufferWidth: number, part
         .then(_ => {
             particlesLoaded = true
         })
-
-    setTimeout(() => {
-        parameters["Movement"] = true
-        onChange()
-    }, 2000)
 
     play()
 }

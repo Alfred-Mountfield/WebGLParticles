@@ -31,7 +31,7 @@ export const parameters = {
 
     // requires simulation restart
     "Simulation Type": `${simulations.thomasAttractor}`,
-    "Texture Size (Particles)": "512", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
+    "Texture Size (Particles)": "256", // Drop-down input coerces it to string, so set it to string by default to avoid bugs
     "Maximum Value": 7,
     "Render with Triangles": false,
     "Triangles Scale": 1,

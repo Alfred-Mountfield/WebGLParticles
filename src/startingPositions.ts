@@ -11,17 +11,14 @@ export function randomPositions(width: number, height: number, maxVal: number): 
 }
 
 // implemented from https://github.com/nicoptere/FBO/blob/master/image.html
-export function loadImage(imagePath = 'src/textures/noise_4.png', maxVal, callback: (positions, width, height, bounds) => void) {
+export function loadImage(imagePath = 'src/textures/noise_4.png', bufferWidth, bufferHeight, maxVal, callback: (positions, width, height, bounds) => void) {
     const img = new Image()
     img.onload = () => {
-        const width = img.width
-        const height = img.height
-
-        const positions = getPositionsFromGreyScaleImage(null, img, width, height, maxVal)
+        const positions = getPositionsFromGreyScaleImage(null, img, bufferWidth, bufferHeight, maxVal)
         const bounds = new Float32Array(3)
-        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(width, height, maxVal)
+        bounds[0] = bounds[1] = bounds[2] = 2 * Math.max(bufferWidth, bufferHeight, maxVal)
 
-        callback(positions, width, height, bounds)
+        callback(positions, bufferWidth, bufferHeight, bounds)
     }
     img.src = imagePath
 }
@@ -40,20 +37,22 @@ function getContext(canvas, w, h) {
     return canvas.getContext("2d")
 }
 
-function getPositionsFromGreyScaleImage(canvas, img, width, height, elevation) {
-    const ctx = getContext(canvas, width, height)
-    ctx.drawImage(img, 0, 0)
+function getPositionsFromGreyScaleImage(canvas, img, bufferWidth, bufferHeight, elevation) {
+    const ctx = getContext(canvas, bufferWidth, bufferHeight)
+    ctx.drawImage(img, 0, 0, bufferWidth, bufferHeight)
 
-    const data = ctx.getImageData(0, 0, width, height).data
+    const data = ctx.getImageData(0, 0, bufferWidth, bufferHeight).data
 
-    let l = (width * height)
+    let len = bufferWidth * bufferHeight
 
-    const positions = new Float32Array(l * 4)
-    for (let i = 0; i < l; i++) {
+
+    const positions = new Float32Array(len * 4)
+    for (let i = 0; i < len; i++) {
         const i4 = i * 4
-        positions[i4] = ((i % width) - width * .5)
+
+        positions[i4] = ((i % bufferWidth) - bufferWidth * .5)
         positions[i4 + 1]  = ( data[i4] / 0xFF * 0.299 +data[i4+1]/0xFF * 0.587 + data[i4+2] / 0xFF * 0.114 ) * elevation * 10
-        positions[i4 + 2]  = ( ( i / width ) - height * .5 )
+        positions[i4 + 2]  = ( ( i / bufferWidth ) - bufferHeight * .5 )
         positions[i4 + 3] = 0
     }
 
