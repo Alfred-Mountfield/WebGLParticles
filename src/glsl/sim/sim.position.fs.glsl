@@ -18,7 +18,6 @@ void main() {
     vec3 pos = tmpPos;
     float life = tmpLife + 1.0;
 
-//    pos += velocity;
     pos = mix(pos, pos+velocity, 0.5);
 
     if (any(greaterThan(abs(pos), bounds * boundaryScale)) || timeToLive > 0.0 && life > timeToLive) {

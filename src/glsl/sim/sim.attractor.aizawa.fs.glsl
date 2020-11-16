@@ -17,11 +17,6 @@ void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
     vec3 pos = texture2D(texturePosition, uv).xyz;
-    vec3 vel = texture2D(textureVelocity, uv).xyz;
-    float life = texture2D(texturePosition, uv).w;
-    float random = texture2D(random, uv).x;
-
-    vec3 velocity = vel;
 
     // Previous positions
     float x = pos.x;
@@ -32,7 +27,7 @@ void main() {
     float dy = (d * x + (z-b) * y);
     float dz = (c + a*z - (z*z*z) / 3.0) - (x*x + y*y)*(1.0+e*z) + f * z * (x*x*x);
 
-    velocity = vec3(dx, dy, dz) * timestep;
+    vec3 velocity = vec3(dx, dy, dz) * timestep;
     velocity = mix(velocity, normalize(velocity), normalizeFactor);
 
     gl_FragColor = vec4(velocity, 1.0);
