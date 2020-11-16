@@ -27,7 +27,7 @@ export const parameters = {
     "Point Size": 2.0,
     "Boundary Scale": 3.0,
     "Particle Time to Live": 1200.0,
-    "Random New Particles": true,
+    "Random New Particles": false,
 
     // requires simulation restart
     "Simulation Type": `${simulations.thomasAttractor}`,
